@@ -1,0 +1,150 @@
+<head>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<div id='content'>
+  <h1>SPELLING BEE</h1>
+  <p id='fieldRandomWord' class='border spaced'></p>
+  <form action="javascript:void(0);" autocomplete="off">
+    <label>your word:</label>
+    <input type='text' size='12' id='input'></input>
+    <input type='submit' value='submit' onclick='check()'></input>
+  </form>
+  <h3 id='fieldScore'>Score: 0</h3>
+  <ul id='fieldSolutions' class='border spaced'>
+  </ul>
+  <h3 id='fieldFails'>Fails: 0</h3>
+</div>
+<div id='gameOver'>
+  <h1>GAME OVER</h1>
+  <h1 id='bestWord'></h1>
+</div>
+
+<script>
+  let fieldRandomWord = document.getElementById('fieldRandomWord')
+  let fieldSolutions  = document.getElementById('fieldSolutions')
+  let fieldFails      = document.getElementById('fieldFails')
+  let fieldGameOver   = document.getElementById('gameOver')
+  let fieldBestWord   = document.getElementById('bestWord')
+  let input = document.getElementById('input')
+  let solutions = []
+  let words = []
+  let randomWord
+  let gameOver = false
+  let score = 0
+  let fails = 0
+
+  let sounds = []
+  for (let i = 0; i < 3; i++) {
+    sounds[i] = new Audio()
+    sounds[i].src = `sound${i}.wav`
+  }
+
+  document.addEventListener('dblclick', noEvent)
+  document.addEventListener('contextmenu', noEvent)
+
+  function noEvent(e) {
+    e.preventDefault()
+  }
+
+  fetch('https://random-word-api.herokuapp.com/all')
+  .then(res  => res.text())
+  .then(data => startGame(data)) 
+
+  function startGame(data) {
+    words = data.split(',')
+    let len = words.length
+    randomWord = getRandomWord(words, len)
+    fieldRandomWord.innerHTML = randomWord
+  }
+
+  function getRandomWord(words, len) {
+    let word = words[Math.floor(Math.random() * len)]
+    if (word.length > 9 && word.length < 12)
+      return word.replaceAll('"','')
+    else return getRandomWord(words, len)
+  }
+
+  function check() {
+    let inputWord = input.value
+    if (gameOver) return
+    if (inputWord.length < 4) return
+    if (solutions.includes(inputWord)) return
+    if (!words.includes('"' + inputWord + '"')) {
+      failure()  
+      return
+    }
+
+    let letters = randomWord.split('')
+    for (let i = 0; i < inputWord.length; i++) {
+      if (!letters.includes(inputWord[i])) {
+        failure()
+        return
+      }
+      letters.splice(letters.indexOf(inputWord[i]), 1)
+    } 
+    addSolution(inputWord)
+    makeScore()
+  }
+
+  function failure() {
+    fieldFails.innerHTML = 'Fails: ' + ++fails
+    if (fails == 5) {
+      gameOver = true
+      fieldGameOver.style
+      fieldGameOver.style.display = 'block'
+      sounds[2].play()
+      fieldBestWord.innerHTML = findBestWord()
+    }
+    else sounds[1].play()
+  }
+
+  function addSolution(word) {
+    sounds[0].play()
+    solutions.push(word)
+    solutions.sort((a, b) => b.length - a.length)
+    if (solutions.length > 5) 
+      solutions.splice(5, 1)
+
+    input.value = ''
+    fieldSolutions.innerHTML = ''
+    for (let s of solutions)  {
+      let obj = document.createElement('li')
+      obj.innerText = s
+      fieldSolutions.appendChild(obj) 
+    }
+  }
+
+  function makeScore() {
+    let reward = [1, 2, 4, 7, 11, 16, 22]
+
+    score = 0
+    for (let s of solutions)
+      score += reward[s.length - 4]
+
+    fieldScore.innerHTML = `Score: ${score}`
+  }
+
+  function findBestWord() {
+    let bestWord = ''
+    for (let word of words) 
+      if (count(word, randomWord) > bestWord.length)
+        bestWord = word.replaceAll('"', '')
+    return bestWord
+  }
+
+  function count(word, random) {
+    word = word.replaceAll('"', '')
+    if (word == random)
+      return 
+
+    random = random.split('')
+    for (let letter of word) {
+      if (!random.includes(letter))
+        return -1
+      random.splice(random.indexOf(letter), 1)
+    }
+    return word.length
+  }
+
+</script>

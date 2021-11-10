@@ -1,0 +1,51 @@
+  body {
+    background: url('img.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+    text-align: center;
+    display: grid;
+    height: 100%;
+    place-items: center center;
+    opacity: 0.92;
+  }  
+
+  #content {
+    padding: 1%;
+    background: #aaa;
+    border: solid 2px black;
+    height: 350px;
+  }
+
+  .border {
+    border: medium dashed black
+  }
+
+  .spaced {
+     letter-spacing: 10px
+  }
+
+  #fieldRandomWord {
+    height: 25px;
+    font-size: 20px;
+  }
+
+  #fieldSolutions {
+    height: 90px;
+    list-style: none;
+    letter-spacing: 10px;
+    margin: 0;
+    padding: 0
+  }
+
+  #gameOver {
+    display: none;
+    position: fixed;
+    color: #c82008;
+    font-size: 5.5vh;
+    opacity: 0.6
+  }
+
+  #bestWord {
+    color: green;
+    opacity: 1
+  }
