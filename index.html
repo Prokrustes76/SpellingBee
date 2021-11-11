@@ -16,7 +16,7 @@
   <h3 id='fieldFails'>Fails: 0</h3>
 </div>
 <div id='gameOver'>
-  <h1>GAME OVER</h1>
+  <h1>GAME<br>OVER</h1>
   <h1 id='bestWord'></h1>
 </div>
 
@@ -60,7 +60,8 @@
 
   function getRandomWord(words, len) {
     let word = words[Math.floor(Math.random() * len)]
-    if (word.length > 9 && word.length < 12)
+    if (word.length > 10 && word.length < 13 && word[word.length-2] != 's' &&
+    !word.includes('ly') && !word.includes('de'))
       return word.replaceAll('"','')
     else return getRandomWord(words, len)
   }
